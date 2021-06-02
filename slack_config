@@ -1,0 +1,4 @@
+channel: #jobs_bms
+username: slackr
+incoming_webhook_url: https://hooks.slack.com/services/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
+bot_user_oauth_token: xoxb-173554248293-2129293593444-IRwhFvH4g61wD1DoaCi9cbeZ
