@@ -1,6 +1,16 @@
-library(plumber)
-
+# plumber.R
 #* @apiTitle BMS Jobs
+
+#* @preempt __first__
+#* @get /
+function(req, res) {
+  res$status <- 302
+  res$setHeader("Location", "./__docs__/")
+  res$body <- "Redirecting..."
+  res
+}
+
+
 
 #* send slack message with duplicated jobs
 #* @post /BMS_duplicated_jobs_slack
