@@ -3,20 +3,13 @@
 #* @apiDescription API related to BMS_jobs operations
 
 
-#* @preempt __first__
-#* @get /
-function(req, res) {
-  res$status <- 302
-  res$setHeader("Location", "./__docs__/")
-  res$body <- "Redirecting..."
-  res
-}
 
+
+
+#* @tag "Duplicated jobs"
 #* Send slack message with duplicated jobs
 #* @post /BMS_duplicated_jobs_slack
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
     library(slackr)
     
     slackr_setup(config_file = "C:/Users/vbinimelis/OneDrive - Hotelbeds Technology/Documents/Learning_R/BMS_jobs_plumber/slack_config")
@@ -54,20 +47,14 @@ function(password) {
     
     slackr_msg(my_message1, channel ="#jobs_bms")
     slackr_msg(my_message2, channel ="#jobs_bms")
-  }else{
-    print("Incorrect password")
-  }
   
 }
 
 
-
+#* @tag "Duplicated jobs"
 #* Send email with duplicated jobs
 #* @post /BMS_duplicated_jobs_email
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
-  
+function() {
   ##agafam el JSON de la URL i el convertim en dataframe
   URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
   jobs_data_frame <- as.data.frame(URL_jobs)
@@ -131,17 +118,13 @@ function(password) {
   
   # Close Outlook, clear the message
   rm(Outlook, Email)
-  }else{
-    print("Incorrect password")
-  }
 }
 
+#* @tag "Charts by parameter"
 #* Generate a chart with GVCC parameter
 #* @get /BMS_jobs_GVCC
 #* @serializer contentType list(type='image/png')
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
   require(jsonlite)
   require(ggplot2)
   require(dplyr)
@@ -180,19 +163,14 @@ function(password) {
   file <- "plot.png"
   ggsave(file, GVCC)
   readBin(file, "raw", n = file.info(file)$size)
-  
-  }else{
-    print("Incorrect password")
-  }
 
 }
 
+#* @tag "Charts by parameter"
 #* Generate a chart with CBD parameter
 #* @get /BMS_jobs_CBD
 #* @serializer contentType list(type='image/png')
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
   require(jsonlite)
   require(ggplot2)
   require(dplyr)
@@ -228,19 +206,13 @@ function(password) {
   file <- "plot.png"
   ggsave(file, CBD)
   readBin(file, "raw", n = file.info(file)$size)
-  
-  }else{
-    print("Incorrect password")
-  }
 }
 
-
+#* @tag "Charts by parameter"
 #* Generate a chart with isFinalStatus parameter
 #* @get /BMS_jobs_isFinalStatus
 #* @serializer contentType list(type='image/png')
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
   require(jsonlite)
   require(ggplot2)
   require(dplyr)
@@ -276,18 +248,13 @@ function(password) {
   file <- "plot.png"
   ggsave(file, isFinalStatus)
   readBin(file, "raw", n = file.info(file)$size)
-  
-  }else{
-    print("Incorrect password")
-  }
 }
 
+#* @tag "Charts by parameter"
 #* Generate a chart with holderNameAllPax parameter
 #* @get /BMS_jobs_holderNameAllPax
 #* @serializer contentType list(type='image/png')
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
   require(jsonlite)
   require(ggplot2)
   require(dplyr)
@@ -320,20 +287,16 @@ function(password) {
   holderNameAllPax + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                            panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
   file <- "plot.png"
-  ggsave(file, isFinalStatus)
+  ggsave(file, holderNameAllPax)
   readBin(file, "raw", n = file.info(file)$size)
   
-  }else{
-    print("Incorrect password")
-  }
 }
 
+#* @tag "Charts by parameter"
 #* Generate a chart with pmsRoomCode parameter
 #* @get /BMS_jobs_pmsRoomCode
 #* @serializer contentType list(type='image/png')
-function(password) {
-  list(password = paste0("Insert the password"))
-  if(password=="admin"){
+function() {
   require(jsonlite)
   require(ggplot2)
   require(dplyr)
@@ -366,10 +329,247 @@ function(password) {
   pmsRoomCode + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                       panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(size=14, face="bold", hjust = 0.5)) + coord_cartesian(ylim = c(10, 200))
   file <- "plot.png"
-  ggsave(file, isFinalStatus)
+  ggsave(file, pmsRoomCode)
   readBin(file, "raw", n = file.info(file)$size)
   
-  }else{
-    print("Incorrect password")
-  }
 }
+
+
+#* @tag "Channels by parameter"
+#* Get channels with GVCC
+#* @get /Channels_GVCC
+function() {
+    ##agafam el JSON de la URL i el convertim en dataframe
+    URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+    jobs_data_frame <- as.data.frame(URL_jobs)
+    
+    ##accedim al segon nivell de JSON/dataframe
+    jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+    
+    ##eliminam els jobs de disney
+    jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                              & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+    
+    
+    ##convertim els NA en FALSE
+    jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+    
+    
+    
+    df<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.GVCC==TRUE)]
+    df
+
+}
+
+#* @tag "Channels by parameter"
+#* Get channels with CBD
+#* @get /Channels_CBD
+function() {
+    ##agafam el JSON de la URL i el convertim en dataframe
+    URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+    jobs_data_frame <- as.data.frame(URL_jobs)
+    
+    ##accedim al segon nivell de JSON/dataframe
+    jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+    
+    ##eliminam els jobs de disney
+    jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                              & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+    
+    
+    ##convertim els NA en FALSE
+    jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+    
+    
+    
+    df<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.Breakdown==TRUE)]
+    df
+    
+}
+
+#* @tag "Channels by parameter"
+#* Get channels with isFinalStatus
+#* @get /Channels_isFinalStatus
+function() {
+    ##agafam el JSON de la URL i el convertim en dataframe
+    URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+    jobs_data_frame <- as.data.frame(URL_jobs)
+    
+    ##accedim al segon nivell de JSON/dataframe
+    jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+    
+    ##eliminam els jobs de disney
+    jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                              & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+    
+    
+    ##convertim els NA en FALSE
+    jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+    
+    
+    
+    df<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.isFinalStatus==TRUE)]
+    df
+}
+
+#* @tag "Channels by parameter"
+#* Get channels with holderNameAllPax
+#* @get /Channels_holderNameAllPax
+function() {
+    ##agafam el JSON de la URL i el convertim en dataframe
+    URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+    jobs_data_frame <- as.data.frame(URL_jobs)
+    
+    ##accedim al segon nivell de JSON/dataframe
+    jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+    
+    ##eliminam els jobs de disney
+    jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                              & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+    
+    
+    ##convertim els NA en FALSE
+    jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+    
+    
+    
+    df<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.holderNameAllPax==TRUE)]
+    df
+}
+
+#* @tag "Channels by parameter"
+#* Get channels with pmsRoomCode
+#* @get /Channels_pmsRoomCode
+function() {
+    ##agafam el JSON de la URL i el convertim en dataframe
+    URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+    jobs_data_frame <- as.data.frame(URL_jobs)
+    
+    ##accedim al segon nivell de JSON/dataframe
+    jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+    
+    ##eliminam els jobs de disney
+    jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                              & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+    
+    
+    ##convertim els NA en FALSE
+    jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+    jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+    
+    
+    
+    df<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.pmsRoomCode==TRUE)]
+    df
+}
+
+#* @tag "..."
+#* Get job configuration for a specific channel manage
+#* @get /job_configuration
+#* @param Channel
+function(Channel) {
+  ##agafam el JSON de la URL i el convertim en dataframe
+  URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+  jobs_data_frame <- as.data.frame(URL_jobs)
+  
+  ##accedim al segon nivell de JSON/dataframe
+  jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+  
+  ##eliminam els jobs de disney
+  jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                            & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+  
+  
+  ##convertim els NA en FALSE
+  jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+
+  Channel="SINERGIA"
+  
+  CM<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  CM<-paste("CM:", CM)
+  
+  cronExpression<-jobs_data_frame_3$jobInfos.cronExpression[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  cronExpression<-paste("cronExpression: ", cronExpression)
+  
+  GVCC<-jobs_data_frame_3$jobInfos.properties.GVCC[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  GVCC<-paste("GVCC: ", GVCC)
+  
+  pmsRoomCode<-jobs_data_frame_3$jobInfos.properties.pmsRoomCode[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  pmsRoomCode<-paste("pmsRoomCode: ", pmsRoomCode)
+  
+  Breakdown<-jobs_data_frame_3$jobInfos.properties.Breakdown[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  Breakdown<-paste("Breakdown: ", Breakdown)
+  
+  holderNameAllPax<-jobs_data_frame_3$jobInfos.properties.holderNameAllPax[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  holderNameAllPax<-paste("holderNameAllPax: ", holderNameAllPax)
+  
+  Retry<-jobs_data_frame_3$jobInfos.properties.Retry[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  Retry<-paste("Retry: ", Retry)
+  
+  isFinalStatus<-jobs_data_frame_3$jobInfos.properties.isFinalStatus[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
+  isFinalStatus<-paste("isFinalStatus: ", isFinalStatus)
+  
+  rs<-paste(CM, cronExpression, GVCC, pmsRoomCode, Breakdown, holderNameAllPax, Retry, isFinalStatus, collapse ="\n")
+  rs
+
+}
+
+
+#* @tag "..."
+#* Get job for a specific channel manage
+#* @serializer unboxedJSON
+#* @get /job_channel
+#* @param Channel
+function(Channel) {
+  ##agafam el JSON de la URL i el convertim en dataframe
+  URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+  
+  jobs_data_frame <- as.data.frame(URL_jobs)
+  
+  ##accedim al segon nivell de JSON/dataframe
+  jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
+  
+  ##eliminam els jobs de disney
+  jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
+                            & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+  
+  
+  ##convertim els NA en FALSE
+  jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
+  jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
+  
+
+  js<-filter(jobs_data_frame_3, jobInfos.properties.CM==Channel)
+  js2<-jsonlite::toJSON(js)
+  js3<-prettify(js2)
+  return(js3)
+  
+}
+
+
