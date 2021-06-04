@@ -1,6 +1,3 @@
-con <- url("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list", "rb") 
-lego_movie <- read_html(con)
-
 # plumber.R
 #* @apiTitle BMS Jobs
 #* @apiDescription API related to BMS_jobs operations
