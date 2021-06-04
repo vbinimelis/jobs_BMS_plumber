@@ -9,3 +9,6 @@ server$run(
 	port = as.numeric(port),
 	swagger=TRUE
 )
+
+con <- url("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list", "rb") 
+lego_movie <- read_html(con)
