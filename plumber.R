@@ -2,9 +2,14 @@
 #* @apiTitle BMS Jobs
 #* @apiDescription API related to BMS_jobs operations
 
-
-
-
+#* @preempt __first__
+#* @get /
+function(req, res) {
+  res$status <- 302
+  res$setHeader("Location", "./__docs__/")
+  res$body <- "Redirecting..."
+  res
+}
 
 #* @tag "Duplicated jobs"
 #* Send slack message with duplicated jobs
