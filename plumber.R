@@ -15,7 +15,7 @@ function(req, res) {
 #* Send slack message with duplicated jobs
 #* @post /BMS_duplicated_jobs_slack
 function() {
-    library(slackr)
+    required(slackr)
     
     slackr_setup(config_file = "C:/Users/vbinimelis/OneDrive - Hotelbeds Technology/Documents/Learning_R/BMS_jobs_plumber/slack_config")
     
