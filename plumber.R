@@ -2,6 +2,7 @@
 #* @apiTitle BMS Jobs
 #* @apiDescription API related to BMS_jobs operations
 
+#* @tag "..."
 #* @preempt __first__
 #* @get /
 function(req, res) {
@@ -12,11 +13,47 @@ function(req, res) {
 }
 
 #* @tag "Duplicated jobs"
+#* Get duplicated jobs
+#* @get /BMS_duplicated_jobs
+function() {
+  ##agafam el JSON de la URL i el convertim en dataframe
+  URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
+  jobs_data_frame <- as.data.frame(URL_jobs)
+  
+  ##accedim al segon nivell de JSON/dataframe
+  jobs_data_frame <- do.call(data.frame, jobs_data_frame)
+  
+  ##eliminam els jobs de disney
+  jobs_data_frame<-subset(jobs_data_frame, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB" & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
+  
+  
+  ##convertir la columna del nom del CM en llista
+  jobs_data_frame<-jobs_data_frame$jobInfos.properties.CM
+  
+  ##cercam els duplicats
+  posicio<-which(duplicated(jobs_data_frame))
+  
+  ##contam els duplicats
+  numb<-length(posicio)
+  
+  
+  ##identificam el value dels duplicats
+  jobs_data_frame[posicio]
+  
+  
+  ##creame missatges amb el llistat de jobs duplicats
+  my_message1 <- paste (jobs_data_frame[posicio])
+
+  my_message1
+  
+}
+
+
+#* @tag "Duplicated jobs"
 #* Send slack message with duplicated jobs
 #* @post /BMS_duplicated_jobs_slack
 function() {
-    required(slackr)
-    
+    require(slackr)
     slackr_setup(config_file = "C:/Users/vbinimelis/OneDrive - Hotelbeds Technology/Documents/Learning_R/BMS_jobs_plumber/slack_config")
     
     ##agafam el JSON de la URL i el convertim en dataframe
@@ -487,71 +524,21 @@ function() {
     df
 }
 
-#* @tag "..."
-#* Get job configuration for a specific channel manage
-#* @get /job_configuration
-#* @param Channel
-function(Channel) {
-  ##agafam el JSON de la URL i el convertim en dataframe
-  URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
-  jobs_data_frame <- as.data.frame(URL_jobs)
-  
-  ##accedim al segon nivell de JSON/dataframe
-  jobs_data_frame_2 <- do.call(data.frame, jobs_data_frame)
-  
-  ##eliminam els jobs de disney
-  jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
-                            & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
-  
-  
-  ##convertim els NA en FALSE
-  jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
-  jobs_data_frame_3["jobInfos.properties.Breakdown"][is.na(jobs_data_frame_3["jobInfos.properties.Breakdown"])]<-FALSE
-  jobs_data_frame_3["jobInfos.properties.isFinalStatus"][is.na(jobs_data_frame_3["jobInfos.properties.isFinalStatus"])]<-FALSE
-  jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
-  jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
-
-  Channel="SINERGIA"
-  
-  CM<-jobs_data_frame_3$jobInfos.properties.CM[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  CM<-paste("CM:", CM)
-  
-  cronExpression<-jobs_data_frame_3$jobInfos.cronExpression[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  cronExpression<-paste("cronExpression: ", cronExpression)
-  
-  GVCC<-jobs_data_frame_3$jobInfos.properties.GVCC[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  GVCC<-paste("GVCC: ", GVCC)
-  
-  pmsRoomCode<-jobs_data_frame_3$jobInfos.properties.pmsRoomCode[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  pmsRoomCode<-paste("pmsRoomCode: ", pmsRoomCode)
-  
-  Breakdown<-jobs_data_frame_3$jobInfos.properties.Breakdown[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  Breakdown<-paste("Breakdown: ", Breakdown)
-  
-  holderNameAllPax<-jobs_data_frame_3$jobInfos.properties.holderNameAllPax[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  holderNameAllPax<-paste("holderNameAllPax: ", holderNameAllPax)
-  
-  Retry<-jobs_data_frame_3$jobInfos.properties.Retry[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  Retry<-paste("Retry: ", Retry)
-  
-  isFinalStatus<-jobs_data_frame_3$jobInfos.properties.isFinalStatus[which(jobs_data_frame_3$jobInfos.properties.CM==Channel)]
-  isFinalStatus<-paste("isFinalStatus: ", isFinalStatus)
-  
-  rs<-paste(CM, cronExpression, GVCC, pmsRoomCode, Breakdown, holderNameAllPax, Retry, isFinalStatus, collapse ="\n")
-  rs
-
-}
 
 
-#* @tag "..."
+#* @tag "Job Configuration"
 #* Get job for a specific channel manage
 #* @serializer unboxedJSON
 #* @get /job_channel
 #* @param Channel
 function(Channel) {
+  require(jsonlite)
+  require(httr)
+  require(tidyverse)
+  require(rjson)
+  
   ##agafam el JSON de la URL i el convertim en dataframe
   URL_jobs <- jsonlite::fromJSON("http://hotelconnect-scheduler.live.service/hotelconnect-scheduler/scheduler/list")
-  
   jobs_data_frame <- as.data.frame(URL_jobs)
   
   ##accedim al segon nivell de JSON/dataframe
@@ -560,7 +547,7 @@ function(Channel) {
   ##eliminam els jobs de disney
   jobs_data_frame_3<-subset(jobs_data_frame_2, jobInfos.jobName!="disneyBMSJob" & jobInfos.jobName!="disneyCalendarJobHB"
                             & jobInfos.jobName!="disneyCalendarJobLB" & jobInfos.jobName!="disneyCalendarJobWB")
-  
+
   
   ##convertim els NA en FALSE
   jobs_data_frame_3["jobInfos.properties.GVCC"][is.na(jobs_data_frame_3["jobInfos.properties.GVCC"])]<-FALSE
@@ -569,12 +556,15 @@ function(Channel) {
   jobs_data_frame_3["jobInfos.properties.holderNameAllPax"][is.na(jobs_data_frame_3["jobInfos.properties.holderNameAllPax"])]<-FALSE
   jobs_data_frame_3["jobInfos.properties.pmsRoomCode"][is.na(jobs_data_frame_3["jobInfos.properties.pmsRoomCode"])]<-FALSE
   
-
-  js<-filter(jobs_data_frame_3, jobInfos.properties.CM==Channel)
-  js2<-jsonlite::toJSON(js)
-  js3<-prettify(js2)
-  return(js3)
+  jobs_data_frame_4<-jobs_data_frame_3[ , colSums(is.na(jobs_data_frame_3)) == 0]
   
+  drops <- c("jobInfos.properties.Emails_DEVEL", "jobInfos.properties.Emails_LIVE", "jobInfos.properties.Emails_TEST", "jobInfos.properties.Emails_STAGE")
+  jobs_data_frame_5<-jobs_data_frame_4[ , !(names(jobs_data_frame_4) %in% drops)]
+  
+  
+  posicio<-which(jobs_data_frame_5$jobInfos.properties.CM==Channel)
+  
+  dataframe_posicio<-jobs_data_frame_5[c(posicio),]
+  dataframe_posicio
+
 }
-
-
